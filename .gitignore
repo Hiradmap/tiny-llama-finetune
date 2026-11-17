@@ -10,4 +10,4 @@ checkpoints/**
 !checkpoints/README.md
 train.bin
 val.bin
-results/
+data/raw_*

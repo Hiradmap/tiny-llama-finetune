@@ -1,0 +1,40 @@
+{
+  "method": "Full-Weight SFT",
+  "data_path": "data/instruction-data-v2.json",
+  "train_samples": 12750,
+  "val_samples": 2250,
+  "total_params": 50669056,
+  "trainable_params": 50669056,
+  "epochs": 3,
+  "lr": 5e-05,
+  "init_val_loss": 3.8099,
+  "best_val_loss": 3.382,
+  "best_val_perplexity": 29.43,
+  "training_time_sec": 630.66,
+  "peak_vram_mb": 3180.8,
+  "checkpoint_path": "checkpoints/sft_v2_best.pt",
+  "checkpoint_size_mb": 579.97,
+  "history": [
+    {
+      "epoch": 1,
+      "step": 797,
+      "train_loss": 3.491,
+      "val_loss": 3.382,
+      "val_perplexity": 29.43
+    },
+    {
+      "epoch": 2,
+      "step": 1594,
+      "train_loss": 3.271,
+      "val_loss": 3.3901,
+      "val_perplexity": 29.67
+    },
+    {
+      "epoch": 3,
+      "step": 2391,
+      "train_loss": 3.1843,
+      "val_loss": 3.3945,
+      "val_perplexity": 29.8
+    }
+  ]
+}

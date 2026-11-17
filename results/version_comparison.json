@@ -1,0 +1,74 @@
+{
+  "versions": [
+    {
+      "key": "v0_base",
+      "label": "v0: Base Pretrained Model",
+      "checkpoint": "checkpoints/base_model.pt",
+      "checkpoint_size_mb": 484.94,
+      "v2_val_loss": 3.8099,
+      "v2_val_perplexity": 45.15,
+      "samples_tuned_sampling": {
+        "What is machine learning?": "The process of converting machine learning to machine learning is called the \u201clearning\u201d method, and it can be used in conjunction with machine learning. The process of converting machine learning into machine learning is called the \u2018learning process\u2019. It is also known as the \u2018learning process\u2019. This process involves using machine learning to create machine learning.\nThere are two types of machine learning:\n- Machine Learning:\nThis type of computer programming language is used for machine learning.",
+        "Give three tips for staying healthy.": "- Make two steps to keep your child safe from becoming sick, and then make one step toward keeping them safe.\n- Take two steps to prevent you from getting sick.\n- Get help with your child\u2019s health by talking about how they are being treated or what they need.\n- You can take a few steps to prevent yourself from going through the process of making a plan for your child.\n- Ask your family doctor if needed.\n- If necessary, try to get",
+        "Convert 45 kilometers to meters.": "The following table shows how you can use this skill in your lesson, and it will be helpful for you to understand what the information is about. The answer is simple, but it\u2019s not easy to read. If you have any questions or suggestions on how to help you learn more about the lesson, please contact us at (9) 873-877-5207",
+        "Explain why the sky is blue in simple terms.": "The moon is red in simple terms, and it's not blue in the same way as the moon itself. The moon is blue in the same way as the moon itself.\nA list of activities for teachers to teach students how to read and write.\n- A list of activities for teachers to help students understand what they are reading.\n- A list of activities for teachers to help students learn about their own writing skills.\n- A list of activities for teachers to help students develop understanding and",
+        "Write a short two-sentence story about a robot.": "The first question to answer this question is: What is the role of the robot? How does it work? The second question to answer this question is, what is the role of the robot in the robot? Why should we use it for our own purposes? This question will be answered by asking questions and questions. It\u2019s important to remember that it\u2019s not just a human being but a human being. In particular, it\u2019s also important to know that it\u2019"
+      }
+    },
+    {
+      "key": "v1_full_sft_1k",
+      "label": "v1: Full SFT (1.1k samples)",
+      "checkpoint": "checkpoints/sft_best.pt",
+      "checkpoint_size_mb": 579.97,
+      "v2_val_loss": 3.8145,
+      "v2_val_perplexity": 45.36,
+      "samples_tuned_sampling": {
+        "What is machine learning?": "The machine learning process is called machine learning.",
+        "Give three tips for staying healthy.": "1) Get four tips for staying healthy and happy.",
+        "Convert 45 kilometers to meters.": "20 miles is approximately 0.5 km\u00b2.",
+        "Explain why the sky is blue in simple terms.": "The moon is red in simple terms, so it's yellow in a different way than the sun.",
+        "Write a short two-sentence story about a robot.": "The next three-sentence story is The Next Generation."
+      },
+      "sampling_comparison": {
+        "old_sampling_temp0.7_rep1.15": "The machine learning process is called machine learning. It is a machine learning process that generates complex, complex, and dynamic data for real time storage."
+      }
+    },
+    {
+      "key": "v2_full_sft_15k",
+      "label": "v2: Full SFT (15k samples)",
+      "checkpoint": "checkpoints/sft_v2_best.pt",
+      "checkpoint_size_mb": 579.97,
+      "v2_val_loss": 3.382,
+      "v2_val_perplexity": 29.43,
+      "samples_tuned_sampling": {
+        "What is machine learning?": "Machine Learning is a type of computer-based programming language used to learn and analyze data, such as data or data from various sources, including data, data, and data. It is also commonly used for applications like data analysis, data processing, and data management.",
+        "Give three tips for staying healthy.": "1. Get enough sleep and exercise regularly to help you stay healthy, as well as keep your mind calm and focused on what you are doing.\n\n2. Keep yourself in good health by getting enough sleep and practicing regular physical activity can also be helpful if you have any concerns about your health or mental health.",
+        "Convert 45 kilometers to meters.": "The area of the Earth's surface is approximately 4 miles (5 km) long, with a height of 1/2 (3.6 m). The width of the Earth's surface is approximately 5 feet (4.8 m), while the width of the Earth's surface is about 8 feet (9.7 m).",
+        "Explain why the sky is blue in simple terms.": "The sky is blue in simple terms, so it's not blue in the sight of the sun.",
+        "Write a short two-sentence story about a robot.": "The robot was born in 1818, and it was named after a team of scientists who had been working on the robot for several years. The robot was named after a team of scientists who were working on the robot."
+      }
+    },
+    {
+      "key": "v3_lora_15k",
+      "label": "v3: LoRA r=16 (15k samples)",
+      "checkpoint": "checkpoints/lora_v3_best.pt",
+      "checkpoint_size_mb": 4.75,
+      "v2_val_loss": 3.4227,
+      "v2_val_perplexity": 30.65,
+      "samples_tuned_sampling": {
+        "What is machine learning?": "Machine Learning is a type of machine learning, which involves using machine learning to create and analyze data from various sources. It can be used for many applications in different types of tasks such as machine learning or machine learning. The machine learning process uses machine learning to make machine learning easier while also allowing it to run faster than other machines.",
+        "Give three tips for staying healthy.": "1) Get to know your health and well-being, including good nutrition habits and proper eating habits.",
+        "Convert 45 kilometers to meters.": "The area of the Earth's surface is called \"Tibet, which is located in the middle of the Earth\".",
+        "Explain why the sky is blue in simple terms.": "The moon's red planet is blue, and it's blue in color.",
+        "Write a short two-sentence story about a robot.": "The first of three stories about a robot was developed by the team, and it's been shown to be a great success for the robots. The second story was written in a series of five stories, including the first and third stories, which were published on June 28th, 1875, and the second stories."
+      }
+    }
+  ],
+  "prompts": [
+    "What is machine learning?",
+    "Give three tips for staying healthy.",
+    "Convert 45 kilometers to meters.",
+    "Explain why the sky is blue in simple terms.",
+    "Write a short two-sentence story about a robot."
+  ]
+}

@@ -25,6 +25,7 @@ FULL-WEIGHT SFT WORKFLOW:
 """
 
 import argparse
+import json
 import math
 import os
 import time
@@ -48,6 +49,10 @@ def parse_args():
                         help="Path to instruction dataset JSON.")
     parser.add_argument("--output_dir", type=str, default="checkpoints",
                         help="Directory to save fine-tuned checkpoints.")
+    parser.add_argument("--save_name", type=str, default="sft_best.pt",
+                        help="Filename for the saved best checkpoint inside output_dir.")
+    parser.add_argument("--results_path", type=str, default=None,
+                        help="Optional JSON path to save version training metrics (e.g. results/sft_v2.json).")
     
     # Training Hyperparameters
     parser.add_argument("--epochs", type=int, default=5, help="Number of training epochs.")
@@ -154,11 +159,14 @@ def main():
         eps=1e-8
     )
 
-    steps_per_epoch = len(train_loader) // args.grad_accum_steps
+    steps_per_epoch = math.ceil(len(train_loader) / args.grad_accum_steps)
     total_steps = steps_per_epoch * args.epochs
     warmup_steps = int(0.1 * total_steps)
+    log_interval = 100 if total_steps > 500 else 20
 
     scaler = torch.amp.GradScaler(device, enabled=(amp_dtype == torch.float16))
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
 
     # Evaluate initial baseline validation loss before any fine-tuning
     print("\nEvaluating initial base model loss on instruction validation set...")
@@ -166,10 +174,11 @@ def main():
     print(f"Base Model Initial Val Loss: {init_val_loss:.4f} (Perplexity: {math.exp(min(init_val_loss, 20.0)):.2f})\n")
 
     best_val_loss = init_val_loss
-    best_ckpt_path = os.path.join(args.output_dir, "sft_best.pt")
+    best_ckpt_path = os.path.join(args.output_dir, args.save_name)
 
     global_step = 0
     start_time = time.time()
+    epoch_history = []
 
     # 5. Training Loop
     for epoch in range(1, args.epochs + 1):
@@ -205,7 +214,7 @@ def main():
                 optimizer.zero_grad(set_to_none=True)
                 global_step += 1
 
-                if global_step % 20 == 0:
+                if global_step % log_interval == 0:
                     print(f"Epoch {epoch}/{args.epochs} | Step {global_step}/{total_steps} | "
                           f"Loss: {loss.item() * args.grad_accum_steps:.4f} | LR: {current_lr:.2e}")
 
@@ -213,6 +222,13 @@ def main():
         val_loss = evaluate_loss(model, val_loader, device, amp_dtype)
         val_ppl = math.exp(min(val_loss, 20.0))
         avg_train_loss = epoch_loss / len(train_loader)
+        epoch_history.append({
+            "epoch": epoch,
+            "step": global_step,
+            "train_loss": round(avg_train_loss, 4),
+            "val_loss": round(val_loss, 4),
+            "val_perplexity": round(val_ppl, 2),
+        })
 
         print("-" * 75)
         print(f"[*] Epoch {epoch}/{args.epochs} Summary | "
@@ -236,8 +252,34 @@ def main():
         print("-" * 75)
 
     total_time = time.time() - start_time
-    print(f"\n[DONE] Fine-tuning finished in {total_time / 60:.1f} minutes!")
+    peak_vram_mb = torch.cuda.max_memory_allocated() / (1024 * 1024) if device == "cuda" else 0.0
+    print(f"\n[DONE] Fine-tuning finished in {total_time / 60:.1f} minutes! Peak VRAM: {peak_vram_mb:.1f} MB")
     print(f"Best Val Loss: {best_val_loss:.4f} (Saved at {best_ckpt_path})")
+
+    if args.results_path:
+        os.makedirs(os.path.dirname(args.results_path) or ".", exist_ok=True)
+        ckpt_size_mb = os.path.getsize(best_ckpt_path) / (1024 * 1024) if os.path.exists(best_ckpt_path) else 0.0
+        metrics = {
+            "method": "Full-Weight SFT",
+            "data_path": args.data_path,
+            "train_samples": len(train_loader.dataset),
+            "val_samples": len(val_loader.dataset),
+            "total_params": model.get_num_params(),
+            "trainable_params": sum(p.numel() for p in model.parameters() if p.requires_grad),
+            "epochs": args.epochs,
+            "lr": args.lr,
+            "init_val_loss": round(init_val_loss, 4),
+            "best_val_loss": round(best_val_loss, 4),
+            "best_val_perplexity": round(math.exp(min(best_val_loss, 20.0)), 2),
+            "training_time_sec": round(total_time, 2),
+            "peak_vram_mb": round(peak_vram_mb, 1),
+            "checkpoint_path": best_ckpt_path,
+            "checkpoint_size_mb": round(ckpt_size_mb, 2),
+            "history": epoch_history,
+        }
+        with open(args.results_path, "w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
+        print(f"Exported metrics to: {args.results_path}")
 
 
 if __name__ == "__main__":

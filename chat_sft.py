@@ -26,18 +26,21 @@ import sys
 import tiktoken
 import torch
 
-from model import LlamaConfig, TinyLlama
+from lora import load_model_from_checkpoint
+from model import TinyLlama
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Chat with instruction-tuned Tiny_Llama.")
-    parser.add_argument("--checkpoint", type=str, default="checkpoints/sft_best.pt",
-                        help="Path to SFT model checkpoint (or base_model.pt).")
+    parser.add_argument("--checkpoint", type=str, default="checkpoints/sft_v2_best.pt",
+                        help="Path to SFT or LoRA model checkpoint (e.g. checkpoints/sft_best.pt, checkpoints/sft_v2_best.pt, checkpoints/lora_v3_best.pt).")
+    parser.add_argument("--base_checkpoint", type=str, default=None,
+                        help="Optional override for base checkpoint when loading a LoRA adapter.")
     parser.add_argument("--max_new_tokens", type=int, default=150, help="Maximum answer tokens.")
-    parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature.")
-    parser.add_argument("--top_k", type=int, default=50, help="Top-K threshold.")
+    parser.add_argument("--temperature", type=float, default=0.3, help="Sampling temperature (lower = sharper, less rambling).")
+    parser.add_argument("--top_k", type=int, default=40, help="Top-K threshold.")
     parser.add_argument("--top_p", type=float, default=0.9, help="Top-P nucleus threshold.")
-    parser.add_argument("--repetition_penalty", type=float, default=1.15, help="Repetition penalty.")
+    parser.add_argument("--repetition_penalty", type=float, default=1.25, help="Repetition penalty.")
     parser.add_argument("--prompt", type=str, default=None, help="Single prompt mode.")
     return parser.parse_args()
 
@@ -48,10 +51,10 @@ def generate_response(
     instruction: str,
     device: str,
     max_new_tokens: int = 150,
-    temperature: float = 0.7,
-    top_k: int = 50,
+    temperature: float = 0.3,
+    top_k: int = 40,
     top_p: float = 0.9,
-    repetition_penalty: float = 1.15
+    repetition_penalty: float = 1.25
 ) -> str:
     # Build prompt matching training template
     prompt_str = (
@@ -91,20 +94,24 @@ def main():
 
     if not os.path.exists(args.checkpoint):
         print(f"Error: Checkpoint '{args.checkpoint}' not found.")
-        print("Please train the model first with `python train_sft.py`.")
+        print("Please train the model first with `python train_sft.py` or `python train_lora.py`.")
         sys.exit(1)
 
     print(f"Loading model from: {args.checkpoint}...")
-    ckpt = torch.load(args.checkpoint, map_location=device, weights_only=False)
-    config = ckpt.get("config", LlamaConfig())
-    model = TinyLlama(config).to(device)
-    model.load_state_dict(ckpt["model_state_dict"])
+    model, ckpt = load_model_from_checkpoint(
+        args.checkpoint,
+        device=device,
+        base_checkpoint_override=args.base_checkpoint,
+        merge_lora=True,
+    )
     model.eval()
+    ckpt_kind = "LoRA Adapter (Merged)" if ckpt.get("checkpoint_type") == "lora" else "Full Weights"
 
     tokenizer = tiktoken.get_encoding("gpt2")
 
     print("\n" + "=" * 65)
-    print("  Tiny_Llama SFT Interactive Chatbot")
+    print(f"  Tiny_Llama SFT Interactive Chatbot [{ckpt_kind}]")
+    print(f"  Sampling: Temp={args.temperature} | Top-K={args.top_k} | RepPenalty={args.repetition_penalty}")
     print("  Type 'quit' or 'exit' to stop.")
     print("=" * 65 + "\n")
 
