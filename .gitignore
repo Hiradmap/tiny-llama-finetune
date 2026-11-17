@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.vscode/
+.env
+checkpoints/*.pt
+checkpoints/*/*.pt
+checkpoints/**
+!checkpoints/
+!checkpoints/README.md
+train.bin
+val.bin
+results/
